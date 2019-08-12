@@ -23,39 +23,46 @@ namespace Company.Function
             //string name = req.Query["name"];
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-
-            var data = JsonConvert.DeserializeObject<CeresPayloadJson>(requestBody);
-            var customer = JsonConvert.DeserializeObject<Customer>(requestBody);
-            var engineer = JsonConvert.DeserializeObject<PrimaryEngineerOwner>(requestBody);
-            var engagement = JsonConvert.DeserializeObject<Engagement>(requestBody);
-            var activity = JsonConvert.DeserializeObject<Activity>(requestBody);
-
-            var engagementDescription = data.Engagements[0]?.Description;
-            var engagementTitle = data.Engagements[0]?.Title;
-            var activityName = data.Engagements[0]?.Activities[0]?.Title;
-            
             var outPut = new OutVars();
-            outPut.CustomerName = data.Customer?.Name;
-            outPut.EngineerAlias = data.PrimaryEngineerOwner?.EmailAddress;
-            outPut.PhysicalLocation = data.PhysicalLocation;
-            outPut.ActivityName = activityName;
-            outPut.Description = data.Description;
-            outPut.EngagementDescription = engagementDescription;
-            outPut.EngagementTitle = engagementTitle;
-            outPut.Title = data.Title;
+            try
+            {
+                var data = JsonConvert.DeserializeObject<CeresPayloadJson>(requestBody);
+                if (data == null)
+                {
+                    log.LogError("Failed to deserialize input" + requestBody);
+                    return new BadRequestObjectResult("Failed to deserialize input");
+                }
 
-            if (activityName == null && engagementTitle == null)
-            {
-                outPut.IsNewProject = true;
+                var engagementDescription = data.Engagements[0]?.Description;
+                var engagementTitle = data.Engagements[0]?.Title;
+                var activityName = data.Engagements[0]?.Activities[0]?.Title;
+
+                outPut.CustomerName = data.Customer?.Name;
+                outPut.EngineerAlias = data.PrimaryEngineerOwner?.EmailAddress;
+                outPut.PhysicalLocation = data.PhysicalLocation ?? "";
+                outPut.ActivityName = activityName ?? "";
+                outPut.Description = data.Description ?? "";
+                outPut.EngagementDescription = engagementDescription;
+                outPut.EngagementTitle = engagementTitle;
+                outPut.Title = data.Title ?? "";
+
+                if (String.IsNullOrEmpty(activityName.ToString()) && String.IsNullOrEmpty(engagementTitle.ToString()))
+                {
+                    outPut.IsNewProject = true;
+                }
+                else if (String.IsNullOrEmpty(activityName.ToString()) && !String.IsNullOrEmpty(engagementTitle.ToString()))
+                {
+                    outPut.IsNewEngagement = true;
+                }
+                else
+                {
+                    outPut.IsNewEngagement = false;
+                    outPut.IsNewProject = false;
+                }
             }
-            else if (activityName == null && engagementTitle != null)
+            catch (Exception ex)
             {
-                outPut.IsNewEngagement = true;
-            }
-            else
-            {
-                outPut.IsNewEngagement = false;
-                outPut.IsNewProject = false;
+                log.LogError(ex.InnerException.ToString());
             }
 
             return outPut != null
