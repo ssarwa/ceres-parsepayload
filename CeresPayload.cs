@@ -34,6 +34,7 @@ namespace Company.Function
                 var engagementDescription = data.Engagements?[0].Description;
                 var engagementTitle = data.Engagements?[0].Title;
                 var activityName = data.Engagements?[0].Activities[0]?.Title;
+                var engagementId = data.Engagements?[0].EngagementId;
 
                 outPut.CustomerName = data.Customer?.Name;
                 outPut.EngineerAlias = data.PrimaryEngineerOwner?.EmailAddress;
@@ -43,6 +44,8 @@ namespace Company.Function
                 outPut.EngagementDescription = engagementDescription ?? "";
                 outPut.EngagementTitle = engagementTitle ?? "";
                 outPut.Title = data.Title ?? "";
+                outPut.ProjectId = data.ProjectId ?? "";
+                outPut.EngagementId = engagementId ?? "";
 
                 if (String.IsNullOrEmpty(activityName) && String.IsNullOrEmpty(engagementTitle))
                 {
@@ -80,6 +83,8 @@ namespace Company.Function
         public string ActivityName { get; set; }
         public bool IsNewProject { get; set; }
         public bool IsNewEngagement { get; set; }
+        public string ProjectId { get; set; }
+        public string EngagementId { get; set; }
     }
 
     public class Customer
