@@ -20,8 +20,6 @@ namespace Company.Function
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
-            //string name = req.Query["name"];
-
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var outPut = new OutVars();
             try
@@ -33,24 +31,24 @@ namespace Company.Function
                     return new BadRequestObjectResult("Failed to deserialize input");
                 }
 
-                var engagementDescription = data.Engagements[0]?.Description;
-                var engagementTitle = data.Engagements[0]?.Title;
-                var activityName = data.Engagements[0]?.Activities[0]?.Title;
+                var engagementDescription = data.Engagements?[0].Description;
+                var engagementTitle = data.Engagements?[0].Title;
+                var activityName = data.Engagements?[0].Activities[0]?.Title;
 
                 outPut.CustomerName = data.Customer?.Name;
                 outPut.EngineerAlias = data.PrimaryEngineerOwner?.EmailAddress;
                 outPut.PhysicalLocation = data.PhysicalLocation ?? "";
                 outPut.ActivityName = activityName ?? "";
                 outPut.Description = data.Description ?? "";
-                outPut.EngagementDescription = engagementDescription;
-                outPut.EngagementTitle = engagementTitle;
+                outPut.EngagementDescription = engagementDescription ?? "";
+                outPut.EngagementTitle = engagementTitle ?? "";
                 outPut.Title = data.Title ?? "";
 
-                if (String.IsNullOrEmpty(activityName.ToString()) && String.IsNullOrEmpty(engagementTitle.ToString()))
+                if (String.IsNullOrEmpty(activityName) && String.IsNullOrEmpty(engagementTitle))
                 {
                     outPut.IsNewProject = true;
                 }
-                else if (String.IsNullOrEmpty(activityName.ToString()) && !String.IsNullOrEmpty(engagementTitle.ToString()))
+                else if (String.IsNullOrEmpty(activityName) && !String.IsNullOrEmpty(engagementTitle))
                 {
                     outPut.IsNewEngagement = true;
                 }
