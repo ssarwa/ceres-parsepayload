@@ -33,11 +33,11 @@ namespace Company.Function
 
                 var engagementDescription = data.Engagements?[0].Description;
                 var engagementTitle = data.Engagements?[0].Title;
-                var activityName = data.Engagements?[0].Activities[0]?.Title;
+                var activityName = data.Engagements?[0].Activities?[0].Title;
                 var engagementId = data.Engagements?[0].EngagementId;
 
-                outPut.CustomerName = data.Customer?.Name;
-                outPut.EngineerAlias = data.PrimaryEngineerOwner?.EmailAddress;
+                outPut.CustomerName = data.Customer?.Name ?? "";
+                outPut.EngineerAlias = data.PrimaryEngineerOwner?.EmailAddress ?? "";
                 outPut.PhysicalLocation = data.PhysicalLocation ?? "";
                 outPut.ActivityName = activityName ?? "";
                 outPut.Description = data.Description ?? "";
